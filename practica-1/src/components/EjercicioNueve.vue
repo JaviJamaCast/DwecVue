@@ -8,12 +8,20 @@ const mensajes = ref([
   { contenido: 'loremIpsum papa 5' }
 ])
 
-const editarMensaje = (index) => {
-  const nuevoContenido = window.prompt('Editar mensaje:', mensajes.value[index].contenido)
-  if (nuevoContenido !== null && nuevoContenido !== '') {
-    mensajes.value[index].contenido = nuevoContenido
-  }
+const mensajeEnEdicion = ref(-1)
+
+const iniciarEdicion = (index) => {
+  mensajeEnEdicion.value = index
 }
+
+const guardarEdicion = () => {
+  mensajeEnEdicion.value = -1
+}
+
+const cancelarEdicion = () => {
+  mensajeEnEdicion.value = -1
+}
+
 const eliminarMensaje = (index) => {
   const borrar = confirm('Desea borrar el mensaje?')
   if (borrar) {
@@ -27,9 +35,15 @@ const eliminarMensaje = (index) => {
     <h1>Mensajes</h1>
     <h3 v-if="!mensajes.length">No hay mensajes</h3>
     <ul v-else>
-      <li v-for="(mensaje, index) in mensajes" :key="mensaje.id" @dblclick="editarMensaje(index)">
-        {{ mensaje.contenido }}
-        <button @click.stop="eliminarMensaje(index)">Eliminar</button>
+      <li v-for="(mensaje, index) in mensajes" :key="mensaje.id" @dblclick="iniciarEdicion(index)">
+        <template v-if="mensajeEnEdicion === index">
+          <input v-model="mensaje.contenido" @keyup.enter="guardarEdicion" />
+          <button @click="cancelarEdicion">Cancelar</button>
+        </template>
+        <template v-else>
+          {{ mensaje.contenido }}
+          <button @click.stop="eliminarMensaje(index)">Eliminar</button>
+        </template>
       </li>
     </ul>
     <p><small>Haz doble clic en un mensaje para editarlo.</small></p>
